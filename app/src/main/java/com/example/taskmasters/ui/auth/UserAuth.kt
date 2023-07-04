@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.taskmasters.screens.BottomNavScreen
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.GoogleAuthProvider
@@ -22,22 +23,24 @@ sealed class Screen(val route: String) {
 
 @Composable
 fun rememberUserAuth(
-    navHostController: NavHostController = rememberNavController()
-) = remember(navHostController) { UserAuth(navHostController) }
+): UserAuth = remember { UserAuth() }
 
 class UserAuth(
-    val navController: NavHostController,
     private val auth: FirebaseAuth = Firebase.auth
 ) {
-
-    var userState by mutableStateOf(auth.currentUser != null)
+    var userState by mutableStateOf(checkUser())
         private set
+
+    private fun checkUser(): Boolean{
+        val user = auth.currentUser
+        return user != null
+    }
 
     fun authWithEmail(email: String, password: String, onError: (String) -> Unit) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener() { task ->
                 if (task.isSuccessful) {
-                    userState = true
+                    userState = checkUser()
                 } else {
                     val errorMessage = task.exception
                     if (errorMessage is FirebaseAuthUserCollisionException) {
@@ -49,12 +52,11 @@ class UserAuth(
             }
     }
 
-    @SuppressLint("RestrictedApi")
     fun signWithEmail(email: String, password: String, onError: (String) -> Unit) {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener() { task ->
                 if (task.isSuccessful) {
-                    userState = task.isSuccessful
+                    userState = checkUser()
                 } else {
                     val errorMessage = task.exception
                     if (errorMessage is FirebaseAuthUserCollisionException) {
@@ -71,13 +73,12 @@ class UserAuth(
         Firebase.auth.signInWithCredential(firebaseCredential)
             .addOnCompleteListener() { task ->
                 if (task.isSuccessful) {
-                    userState = task.isSuccessful
+                    userState = checkUser()
                 } else {
                     val exception = task.exception
                     Log.d("Google auth error: ", exception.toString())
                     onError("ошибка входа")
                 }
             }
-
     }
 }

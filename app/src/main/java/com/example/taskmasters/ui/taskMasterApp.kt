@@ -1,8 +1,11 @@
 package com.example.taskmasters.ui
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.SideEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,38 +17,47 @@ import com.example.taskmasters.ui.auth.UserAuth
 import com.example.taskmasters.ui.auth.rememberUserAuth
 import com.example.taskmasters.ui.calendar.CalendarScreen
 import com.example.taskmasters.ui.home.HomeScreen
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.navigation.compose.navigation
+import androidx.navigation.compose.rememberNavController
 
+
+@SuppressLint("UnrememberedMutableState")
 @Composable
 fun TaskMasterApp(
     appState: UserAuth = rememberUserAuth(),
-    navController: NavHostController = appState.navController
+    navController: NavHostController = rememberNavController(),
 ) {
-    val userState = appState.userState
-
-    LaunchedEffect( userState ) {
-        navController.navigate(if (userState) BottomNavScreen.Home.route else Screen.RegistrationScreet.route)
-    }
-
-    if (!appState.userState) {
-        NavHost(navController = navController, startDestination = Screen.RegistrationScreet.route ) {
-            composable(Screen.RegistrationScreet.route) {
-                RegistrationScreet(navController)
+    LaunchedEffect(appState.userState) {
+        if (appState.userState) {
+            navController.navigate(BottomNavScreen.Home.route) {
+                popUpTo(navController.graph.startDestinationId)
+                launchSingleTop = true
             }
-            composable(Screen.LogInScreen.route) {
-                SignInScreen(navController)
+        } else {
+            navController.navigate(Screen.RegistrationScreet.route) {
+                popUpTo(navController.graph.startDestinationId)
+                launchSingleTop = true
             }
         }
-    } else {
-        NavHost(navController = navController, startDestination = BottomNavScreen.Home.route ) {
-            composable(BottomNavScreen.Home.route) {
-                HomeScreen(navController)
-            }
-            composable(BottomNavScreen.Calendar.route) {
-                CalendarScreen(navController)
-            }
-            composable(BottomNavScreen.Settings.route) {
+    }
 
-            }
+    NavHost(navController = navController, startDestination = if (appState.userState) BottomNavScreen.Home.route else Screen.RegistrationScreet.route) {
+        composable(Screen.RegistrationScreet.route) {
+            RegistrationScreet(navController)
+        }
+        composable(Screen.LogInScreen.route) {
+            SignInScreen(navController)
+        }
+        composable(BottomNavScreen.Home.route) {
+            HomeScreen(navController)
+        }
+        composable(BottomNavScreen.Calendar.route) {
+            CalendarScreen(navController)
+        }
+        composable(BottomNavScreen.Settings.route) {
         }
     }
 }
