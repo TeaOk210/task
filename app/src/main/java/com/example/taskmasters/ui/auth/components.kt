@@ -1,4 +1,6 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3Api::class
+)
 
 package com.example.taskmasters.ui.auth
 
@@ -29,7 +31,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,6 +48,7 @@ import androidx.navigation.NavController
 import com.example.taskmasters.R
 import com.stevdzasan.onetap.OneTapSignInWithGoogle
 import com.stevdzasan.onetap.rememberOneTapSignInState
+import kotlinx.coroutines.launch
 
 @Composable
 fun ContinueButton(
@@ -147,32 +150,30 @@ private fun hasErrors(value: String, type: KeyboardType): Boolean {
 }
 
 @Composable
-fun SignBlock(
-    error: MutableState<String>
-) {
+fun SignBlock() {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxSize()
     ) {
-        GoogleButton(error)
+        GoogleButton()
     }
 }
 
 @Composable
 fun GoogleButton(
-    error: MutableState<String>
+    viewModel: AuthViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val state = rememberOneTapSignInState()
-    val userAuth = rememberUserAuth()
+    val scope = rememberCoroutineScope()
 
     OneTapSignInWithGoogle(
         state = state,
         clientId = "761394542856-9c6a7l7abtpmlptf0mqfh113te7aumq7.apps.googleusercontent.com",
         onTokenIdReceived = { tokenId ->
-            userAuth.authWithGoogle(tokenId, onError = { exception ->
-                error.value = exception
-            })
+            scope.launch {
+                viewModel.googleLogin(tokenId)
+            }
         },
         onDialogDismissed = { message ->
             Log.d("LOG", message)

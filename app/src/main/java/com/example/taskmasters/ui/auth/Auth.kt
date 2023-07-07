@@ -15,27 +15,42 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.taskmasters.screens.BottomNavScreen
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.launch
+
+sealed class Screen(val route: String) {
+    object RegistrationScreet : Screen("reg_screen")
+    object LogInScreen : Screen("log_screen")
+}
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun RegistrationScreet(
-    navController: NavController
+    navController: NavController,
+    viewModel: AuthViewModel = viewModel()
 ) {
     val isEmailState = remember { mutableStateOf(false) }
     val isUserState = remember { mutableStateOf(false) }
     val isPasswordState = remember { mutableStateOf(false) }
-    val userAuth = rememberUserAuth()
-    val error = remember { mutableStateOf("")}
+
+    val scope = rememberCoroutineScope()
+    val state = viewModel.authState.collectAsState(initial = null)
 
     val email = remember {
         mutableStateOf("")
@@ -78,8 +93,8 @@ fun RegistrationScreet(
                 State = isPasswordState,
                 password
             )
-            if (error.value.isNotEmpty()) {
-                Text(text = error.value, fontSize = 20.sp, color = Color.Red)
+            if (state.value?.isError?.isNotEmpty() == true) {
+                Text(text = state.value?.isError ?: "", fontSize = 20.sp, color = Color.Red)
             }
             Space(50)
             ContinueButton(
@@ -87,13 +102,20 @@ fun RegistrationScreet(
                 isUsernameFilled = isUserState.value,
                 isPasswordFilled = isPasswordState.value,
                 "Зарегистрироваться",
-            ) { userAuth.authWithEmail(email.value, password.value, onError = { exception ->
-                error.value = exception
-            }) }
+            ) {
+                scope.launch {
+                    viewModel.registrUser(email.value, password.value)
+                }
+            }
             Space(50)
             Or(navController, "Или войдите в аккаунт", Screen.LogInScreen)
             Space(30)
-            SignBlock(error)
+            SignBlock()
+        }
+    }
+    LaunchedEffect(key1 = state.value?.isSuccess) {
+        if (state.value?.isSuccess == "Успешно") {
+            navController.navigate(BottomNavScreen.Home.route)
         }
     }
 }
@@ -101,13 +123,15 @@ fun RegistrationScreet(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun SignInScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: AuthViewModel = viewModel()
 ) {
     val isEmailState = remember { mutableStateOf(false) }
     val isPasswordState = remember { mutableStateOf(false) }
     val isUserState = remember { mutableStateOf(true) }
-    val userAuth = rememberUserAuth()
-    val error = remember { mutableStateOf("")}
+
+    val scope = rememberCoroutineScope()
+    val state = viewModel.authState.collectAsState(initial = null)
 
     val email = remember {
         mutableStateOf("")
@@ -140,8 +164,8 @@ fun SignInScreen(
                 State = isPasswordState,
                 password
             )
-            if (error.value.isNotEmpty()) {
-                Text(text = error.value, fontSize = 20.sp, color = Color.Red)
+            if (state.value?.isError?.isNotEmpty() == true) {
+                Text(text = state.value?.isError ?: "", fontSize = 20.sp, color = Color.Red)
             }
             Space(50)
             ContinueButton(
@@ -150,14 +174,19 @@ fun SignInScreen(
                 isPasswordFilled = isPasswordState.value,
                 "Войти"
             ) {
-                userAuth.signWithEmail(email.value, password.value, onError = { exception ->
-                    error.value = exception
-                })
+                scope.launch {
+                    viewModel.loginUser(email.value, password.value)
+                }
             }
             Space(50)
             Or(navController, title = "Или зарегистрируйтесь", Screen.RegistrationScreet)
             Space(height = 50)
-            GoogleButton(error)
+            GoogleButton()
+        }
+    }
+    LaunchedEffect(key1 = state.value?.isSuccess) {
+        if (state.value?.isSuccess == "Успешно") {
+            navController.navigate(BottomNavScreen.Home.route)
         }
     }
 }
