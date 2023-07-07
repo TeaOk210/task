@@ -1,37 +1,36 @@
 package com.example.taskmasters.ui.home
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.taskmasters.data.TableItem
-import com.example.taskmasters.data.TaskRepository
+import com.example.taskmasters.data.TaskRepositoryImpl
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class  HomeViewModel : ViewModel() {
-    val tables: MutableState<List<TableItem>> = mutableStateOf(emptyList())
+class HomeViewModel(
+    private val taskRepository: TaskRepositoryImpl = TaskRepositoryImpl(),
+    private val user: FirebaseUser = Firebase.auth.currentUser!!
+) : ViewModel() {
 
-    private val taskRepository = TaskRepository()
+    private val _tables = MutableStateFlow<List<TableItem?>>(emptyList())
+    val tables: StateFlow<List<TableItem?>> = _tables
 
-
-    fun getTables(userId: String) {
+    fun loadTables() {
         viewModelScope.launch {
-            taskRepository.getTable(userId) { data ->
-                tables.value = data
-            }
+            taskRepository.getTables(user)
+                .collect { tables ->
+                    _tables.value = tables
+                }
         }
     }
-//    fun loadTables(UserId: String) {
-//        taskRepository.getTable(UserId) { tableData ->
-//            tables.value = tableData
-//        }
-//    }
 
-    fun saveTable() {
-        taskRepository.saveTables(tables.value)
-    }
-
-    fun addTable(tableItem: TableItem) {
-        taskRepository.addTable(tableItem)
+    fun addTable(color: Color) {
+        viewModelScope.launch {
+            taskRepository.addTable(TableItem(user.uid, color))
+        }
     }
 }

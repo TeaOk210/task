@@ -21,9 +21,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -34,19 +37,22 @@ import com.example.taskmasters.screens.BottomBar
 import com.example.taskmasters.screens.BottomNavScreen
 import com.example.taskmasters.screens.TopBar
 
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnrememberedMutableState")
 @Composable
-fun HomeScreen(navController: NavController) {
-    val viewModel: HomeViewModel = viewModel()
+fun HomeScreen(navController: NavController, viewModel: HomeViewModel = viewModel()) {
+    val tables by viewModel.tables.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadTables()
+    }
 
     Scaffold(
         bottomBar = { BottomBar(navController) },
-        topBar = { TopBar(BottomNavScreen.Home) }
+        topBar = { TopBar(BottomNavScreen.Home) },
     ) {
         val cardHeight by mutableIntStateOf(500)
 
-        TableCard(cardHeight.dp, "Рабочие столы", viewModel)
+        TableCard(cardHeight.dp, "Рабочие столы", tables, viewModel)
     }
 }
 
@@ -54,14 +60,11 @@ fun HomeScreen(navController: NavController) {
 fun TableCard(
     height: Dp,
     title: String,
+    tables: List<TableItem?>,
     viewModel: HomeViewModel
 ) {
-//    val userId = rememberUserState().Userid
-//    LaunchedEffect(userId) {
-//        viewModel.getTables(userId)
-//    }
-
     Text(text = title, fontSize = 26.sp, modifier = Modifier.padding(start = 15.dp, top = 115.dp))
+
     Surface(
         tonalElevation = 4.dp,
         shadowElevation = 4.dp,
@@ -71,7 +74,7 @@ fun TableCard(
             .height(height)
             .padding(start = 10.dp, end = 10.dp, top = 150.dp)
             .background(Color.White),
-        color = Color.White
+        color = Color.White,
     ) {
         Column(
             modifier = Modifier
@@ -80,35 +83,32 @@ fun TableCard(
             verticalArrangement = Arrangement.Top
         ) {
             Button(
-                onClick = { viewModel.addTable(
-                    com.example.taskmasters.data.TableItem(
-                        "",
-                        Color.Cyan
-                    )
-                ) },
+                onClick = {
+                    viewModel.addTable(Color.Cyan)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(100.dp),
                 shape = RoundedCornerShape(20.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
+                colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 10.dp,
+                    pressedElevation = 30.dp
+                )
             ) {
                 Icon(Icons.Default.Add, "Add table button")
             }
-//            val currentDesktop by viewModel.tables
-//
-//            currentDesktop.forEach { tableItem ->
-//                TableItem(color = tableItem.color)
-//            }
+
+            tables.forEach { tableItem ->
+                Box(
+                    modifier = Modifier
+                        .padding(top = 10.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .fillMaxWidth()
+                        .height(100.dp)
+                        .background(tableItem!!.color)
+                )
+            }
         }
     }
-}
-
-@Composable
-fun TableItem(color: Color) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(100.dp)
-            .background(color)
-    )
 }

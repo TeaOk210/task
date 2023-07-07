@@ -29,9 +29,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.taskmasters.screens.BottomNavScreen
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 
 sealed class Screen(val route: String) {
@@ -62,7 +59,7 @@ fun RegistrationScreet(
         mutableStateOf("")
     }
 
-    Scaffold() {
+    Scaffold {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -115,7 +112,10 @@ fun RegistrationScreet(
     }
     LaunchedEffect(key1 = state.value?.isSuccess) {
         if (state.value?.isSuccess == "Успешно") {
-            navController.navigate(BottomNavScreen.Home.route)
+            navController.navigate(BottomNavScreen.Home.route) {
+                launchSingleTop = true
+                restoreState = true
+            }
         }
     }
 }
@@ -140,7 +140,7 @@ fun SignInScreen(
         mutableStateOf("")
     }
 
-    Scaffold() {
+    Scaffold {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -186,7 +186,10 @@ fun SignInScreen(
     }
     LaunchedEffect(key1 = state.value?.isSuccess) {
         if (state.value?.isSuccess == "Успешно") {
-            navController.navigate(BottomNavScreen.Home.route)
+            navController.navigate(BottomNavScreen.Home.route) {
+                launchSingleTop = true
+                restoreState = true
+            }
         }
     }
 }

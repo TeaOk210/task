@@ -1,5 +1,8 @@
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package com.example.taskmasters.screens
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -32,24 +35,28 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 sealed class BottomNavScreen(
     val route: String,
     val title: String,
-    val icon: ImageVector
+    val icon: ImageVector,
+    val page: Int
 ) {
     object Home : BottomNavScreen(
         route = "home",
         title = "Главная",
-        icon = Icons.Default.Home
+        icon = Icons.Default.Home,
+        page = 0
     )
 
     object Calendar : BottomNavScreen(
         route = "calendar",
         title = "Календарь",
-        icon = Icons.Default.LocationOn
+        icon = Icons.Default.LocationOn,
+        page = 1
     )
 
     object Settings : BottomNavScreen(
         route = "settings",
         title = "Настройки",
-        icon = Icons.Default.Settings
+        icon = Icons.Default.Settings,
+        page = 2
     )
 }
 
@@ -79,9 +86,7 @@ fun BottomBar(navController: NavController) {
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
                             }
-
                             launchSingleTop = true
-
                             restoreState = true
                         }
                     },
