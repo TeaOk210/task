@@ -1,20 +1,19 @@
 package com.example.taskmasters.ui.auth
 
-import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.taskmasters.screens.BottomNavScreen
+import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 sealed class Screen(val route: String) {
     object RegistrationScreet : Screen("reg_screen")
@@ -22,16 +21,16 @@ sealed class Screen(val route: String) {
 }
 
 @Composable
-fun rememberUserAuth(
-): UserAuth = remember { UserAuth() }
+fun rememberUserAuth(): UserAuth = remember { UserAuth() }
 
 class UserAuth(
     private val auth: FirebaseAuth = Firebase.auth
 ) {
+
     var userState by mutableStateOf(checkUser())
         private set
 
-    private fun checkUser(): Boolean{
+    private fun checkUser(): Boolean {
         val user = auth.currentUser
         return user != null
     }
