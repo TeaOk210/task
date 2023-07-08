@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -30,20 +32,25 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.taskmasters.R
 import com.example.taskmasters.data.TableItem
 import com.example.taskmasters.screens.BottomBar
 import com.example.taskmasters.screens.BottomNavScreen
 import com.example.taskmasters.screens.Space
 import com.example.taskmasters.screens.TopBar
+import com.example.taskmasters.ui.DragTarget
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -99,41 +106,79 @@ fun TableCard(
             .background(Color.White),
         color = Color.White,
     ) {
-        Column(
-            modifier = Modifier
-                .padding(start = 5.dp, end = 5.dp),
+        LazyColumn(
+            modifier = Modifier.padding(start = 5.dp, end = 5.dp),
             verticalArrangement = Arrangement.Top
         ) {
-            Space(height = 10)
-            Button(
-                onClick = {
-                    viewModel.addTable(Color.Cyan)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp),
-                shape = RoundedCornerShape(20.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
-                elevation = ButtonDefaults.buttonElevation(
-                    defaultElevation = 10.dp,
-                    pressedElevation = 30.dp
-                )
-            ) {
-                Icon(Icons.Default.Add, "Add table button")
+            item {
+                Space(height = 10)
+                Button(
+                    onClick = {
+                        viewModel.addTable(Color.Cyan)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+                    elevation = ButtonDefaults.buttonElevation(
+                        defaultElevation = 10.dp,
+                        pressedElevation = 30.dp
+                    )
+                ) {
+                    Icon(Icons.Default.Add, "Add table button")
+                }
             }
 
-            tables.forEach { tableItem ->
-                Space(height = 10)
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
-                        .fillMaxWidth()
-                        .height(100.dp)
-                        .background(tableItem!!.color)
-                )
+            items(tables) { tableItem ->
+                tableItem?.let { item ->
+                    DragTarget(dataToDrop = item, viewModel = viewModel) {
+                        Space(height = 10)
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(20.dp))
+                                .fillMaxWidth()
+                                .height(100.dp)
+                                .background(item.color.parseColor())
+                        ) {
+                            Icon(
+                                ImageBitmap.imageResource(id = R.drawable.polosi),
+                                contentDescription = "sorted tables",
+                                modifier = Modifier.align(
+                                    Alignment.CenterEnd
+                                )
+                            )
+                        }
+                    }
+                }
             }
+//            AnimatedVisibility(
+//                viewModel.isCurrentDragging,
+//                enter = slideInHorizontally { it }
+//            ) {
+//                DropItem<TableItem>(modifier = Modifier
+//                    .size(Dp(LocalConfiguration.current.screenHeightDp / 3.5f))) {isInBound, data ->
+//                    if (isInBound) {
+//                        Box(modifier = Modifier
+//                            .fillMaxSize()
+//                            .border(
+//                                1.dp,
+//                                Color.Red,
+//                                RoundedCornerShape(20.dp)
+//                            )
+//                            .background(Color.Gray.copy(0.5f), RoundedCornerShape(20.dp)),
+//                        contentAlignment = Alignment.Center) {
+//
+//                        }
+//                    }
+//                }
+//            }
         }
     }
+}
+
+private fun String.parseColor(): Color {
+    return Color(android.graphics.Color.parseColor(this))
 }
 
 private fun calculateCardHeight(tableCount: Int): Dp {
@@ -148,23 +193,3 @@ private fun calculateCardHeight(tableCount: Int): Dp {
         defaultHeight + (tableCount - 2) * (tableHeight + space)
     }
 }
-
-//private fun createGradient() {
-//    val allColors = listOf(
-//        Color.Gray,
-//        Color.Red,
-//        Color.Cyan,
-//        Color.LightGray,
-//        Color.Magenta,
-//        Color.Blue,
-//        Color.Yellow
-//    )
-//
-//    val firstColor = Random(allColors.size)
-//    var secondColor = Random(allColors.size)
-//    while (secondColor == firstColor) {
-//        secondColor = Random(allColors.size)
-//    }
-//
-//    val gradient =
-//}

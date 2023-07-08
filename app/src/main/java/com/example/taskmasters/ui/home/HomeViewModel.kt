@@ -1,6 +1,10 @@
 package com.example.taskmasters.ui.home
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskmasters.data.TableItem
@@ -30,8 +34,21 @@ class HomeViewModel(
     }
 
     fun addTable(color: Color) {
+        val colorHex = String.format("#%06X", (0xFFFFFF and color.toArgb()))
         viewModelScope.launch {
-            taskRepository.addTable(TableItem(user.uid, color))
+            taskRepository.addTable(TableItem(user.uid, colorHex))
         }
+    }
+
+    //dragging
+    var isCurrentDragging by mutableStateOf(false)
+        private set
+
+    fun startDragging() {
+        isCurrentDragging = true
+    }
+
+    fun stopDragging() {
+        isCurrentDragging = false
     }
 }
