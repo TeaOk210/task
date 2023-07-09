@@ -45,19 +45,21 @@ class TaskRepositoryImpl(private val database: FirebaseFirestore = Firebase.fire
 
 data class TableItem(
     val userId: String,
-    val color: String
+    val gradient:GradientWrapper
 ) {
-    
-    constructor(): this("", "#0894ld")
+    constructor(): this("", GradientWrapper(listOf("#00FFFF", "#FFFF00"), emptyList(), GradientWrapper.Orientation.Horizontal))
 }
 
+
 data class GradientWrapper(
-    val colors: List<Int>,
+    val colors: List<String>,
     val positions: List<Float>,
     val orientation: Orientation
 ) {
+    constructor() : this(emptyList(), emptyList(), Orientation.Horizontal)
     enum class Orientation {
         Horizontal,
         Vertical
     }
 }
+

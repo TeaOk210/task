@@ -32,25 +32,23 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.taskmasters.R
+import com.example.taskmasters.data.GradientWrapper.Orientation.*
 import com.example.taskmasters.data.TableItem
 import com.example.taskmasters.screens.BottomBar
 import com.example.taskmasters.screens.BottomNavScreen
 import com.example.taskmasters.screens.Space
 import com.example.taskmasters.screens.TopBar
-import com.example.taskmasters.ui.DragTarget
+import kotlin.random.Random
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -114,7 +112,7 @@ fun TableCard(
                 Space(height = 10)
                 Button(
                     onClick = {
-                        viewModel.addTable(Color.Cyan)
+                        viewModel.addTable()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -130,56 +128,42 @@ fun TableCard(
                 }
             }
 
+
+
             items(tables) { tableItem ->
-                tableItem?.let { item ->
-                    DragTarget(dataToDrop = item, viewModel = viewModel) {
-                        Space(height = 10)
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(20.dp))
-                                .fillMaxWidth()
-                                .height(100.dp)
-                                .background(item.color.parseColor())
-                        ) {
-                            Icon(
-                                ImageBitmap.imageResource(id = R.drawable.polosi),
-                                contentDescription = "sorted tables",
-                                modifier = Modifier.align(
-                                    Alignment.CenterEnd
-                                )
-                            )
-                        }
-                    }
-                }
+                Space(height = 10)
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .fillMaxWidth()
+                        .height(100.dp)
+                        .background(
+                            brush = generateRandomPairGradient()
+                        )
+                )
             }
-//            AnimatedVisibility(
-//                viewModel.isCurrentDragging,
-//                enter = slideInHorizontally { it }
-//            ) {
-//                DropItem<TableItem>(modifier = Modifier
-//                    .size(Dp(LocalConfiguration.current.screenHeightDp / 3.5f))) {isInBound, data ->
-//                    if (isInBound) {
-//                        Box(modifier = Modifier
-//                            .fillMaxSize()
-//                            .border(
-//                                1.dp,
-//                                Color.Red,
-//                                RoundedCornerShape(20.dp)
-//                            )
-//                            .background(Color.Gray.copy(0.5f), RoundedCornerShape(20.dp)),
-//                        contentAlignment = Alignment.Center) {
-//
-//                        }
-//                    }
-//                }
-//            }
         }
     }
 }
 
-private fun String.parseColor(): Color {
-    return Color(android.graphics.Color.parseColor(this))
+fun generateRandomPairGradient(): Brush {
+    val color1 = generateSoftColor()
+    val color2 = generateSoftColor()
+    val color3 = generateSoftColor()
+    return Brush.linearGradient(
+        colors = listOf(color1, color2, color3)
+    )
 }
+
+fun generateSoftColor(): Color {
+    val r = Random.nextInt(50,200)
+    val g = Random.nextInt(50,200)
+    val b = Random.nextInt(50,200)
+    val a = Random.nextInt(1000)
+
+    return Color(r,g,b,a)
+}
+
 
 private fun calculateCardHeight(tableCount: Int): Dp {
     val tableHeight = 100.dp
