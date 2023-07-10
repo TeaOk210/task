@@ -37,13 +37,19 @@ class HomeViewModel(
         }
     }
 
+    fun deleteTables() {
+        viewModelScope.launch {
+            taskRepository.deleteAllTables(user)
+        }
+    }
+
     private fun generateSmoothGradient(): List<String> {
         val colors = mutableListOf<String>()
         val baseColor = generateSoftColor().toArgb()
 
-        repeat((2..3).random()) {
+        repeat(2) {
             val variation = Random.nextInt()
-            val color = Color(baseColor + variation).toArgb()
+            val color = Color(baseColor + variation) .toArgb()
             colors.add(String.format("#%06x", (0xFFFFFF and color)))
         }
 
@@ -52,9 +58,9 @@ class HomeViewModel(
 
 
     private fun generateSoftColor(): Color {
-        val r = Random.nextInt()
-        val g = Random.nextInt()
-        val b = Random.nextInt()
+        val r = Random.nextInt(0, 256)
+        val g = Random.nextInt(50, 210)
+        val b = Random.nextInt(0, 250)
         val a = Random.nextInt()
 
         return Color(r, g, b, a)

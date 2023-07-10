@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -90,7 +91,13 @@ fun TableCard(
     tables: List<TableItem?>,
     viewModel: HomeViewModel
 ) {
-    Text(text = title, fontSize = 26.sp, modifier = Modifier.padding(start = 15.dp))
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Text(text = title, fontSize = 26.sp, modifier = Modifier.padding(start = 15.dp))
+
+        Button(onClick = { viewModel.deleteTables() }) {
+
+        }
+    }
 
     Surface(
         tonalElevation = 8.dp,

@@ -39,6 +39,21 @@ class TaskRepositoryImpl(private val database: FirebaseFirestore = Firebase.fire
             awaitClose { listenerRegistration.remove() }
         }
     }
+
+    override fun deleteAllTables(user: FirebaseUser) {
+        val ref = database.collection("tables")
+            .whereEqualTo("userId", user.uid)
+
+        ref.get().addOnSuccessListener { querySnapshot ->
+            val batch = database.batch()
+            querySnapshot.documents.forEach { document ->
+                batch.delete(document.reference)
+            }
+            batch.commit()
+        }.addOnFailureListener { exception ->
+            // Handle failure
+        }
+    }
 }
 
 data class TableItem(
