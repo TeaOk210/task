@@ -1,9 +1,9 @@
 package com.example.taskmasters.ui.home
 
-import androidx.core.graphics.ColorUtils
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.taskmasters.data.GradientWrapper
 import com.example.taskmasters.data.TableItem
 import com.example.taskmasters.data.TaskRepositoryImpl
 import com.google.firebase.auth.FirebaseUser
@@ -31,37 +31,32 @@ class HomeViewModel(
         }
     }
 
-    fun addTable(color: GradientWrapper = generateSmoothGradient()) {
+    fun addTable(color: List<String> = generateSmoothGradient()) {
         viewModelScope.launch {
             taskRepository.addTable(TableItem(user.uid, color))
         }
     }
 
-    private fun generateSmoothGradient(): GradientWrapper {
-        val numColors = (2..4).random()
+    private fun generateSmoothGradient(): List<String> {
         val colors = mutableListOf<String>()
-        val positions = mutableListOf<Float>()
+        val baseColor = generateSoftColor().toArgb()
 
-        val hueStep = 360f / numColors
-        var currentHue = 0f
-
-        repeat(numColors) {
-            val color = ColorUtils.HSLToColor(floatArrayOf(currentHue, 0.5f, 0.5f))
-            colors.add(String.format("#%06X", 0xFFFFFF and color))
-
-            val position = it.toFloat() / (numColors - 1)
-            positions.add(position)
-
-            currentHue += hueStep
+        repeat((2..3).random()) {
+            val variation = Random.nextInt()
+            val color = Color(baseColor + variation).toArgb()
+            colors.add(String.format("#%06x", (0xFFFFFF and color)))
         }
 
-        val orientation = if (Random.nextBoolean()) {
-            GradientWrapper.Orientation.Horizontal
-        } else {
-            GradientWrapper.Orientation.Vertical
-        }
-
-        return GradientWrapper(colors, positions, orientation)
+        return colors
     }
 
+
+    private fun generateSoftColor(): Color {
+        val r = Random.nextInt()
+        val g = Random.nextInt()
+        val b = Random.nextInt()
+        val a = Random.nextInt()
+
+        return Color(r, g, b, a)
+    }
 }

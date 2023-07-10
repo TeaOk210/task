@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
 
-
 class TaskRepositoryImpl(private val database: FirebaseFirestore = Firebase.firestore) :
     TaskRepository {
 
@@ -18,7 +17,6 @@ class TaskRepositoryImpl(private val database: FirebaseFirestore = Firebase.fire
             .document()
             .set(tableItem.copy())
     }
-
 
     override fun getTables(user: FirebaseUser): Flow<List<TableItem>> {
         return callbackFlow {
@@ -45,21 +43,8 @@ class TaskRepositoryImpl(private val database: FirebaseFirestore = Firebase.fire
 
 data class TableItem(
     val userId: String,
-    val gradient:GradientWrapper
+    val colors: List<String>
 ) {
-    constructor(): this("", GradientWrapper(listOf("#00FFFF", "#FFFF00"), emptyList(), GradientWrapper.Orientation.Horizontal))
-}
-
-
-data class GradientWrapper(
-    val colors: List<String>,
-    val positions: List<Float>,
-    val orientation: Orientation
-) {
-    constructor() : this(emptyList(), emptyList(), Orientation.Horizontal)
-    enum class Orientation {
-        Horizontal,
-        Vertical
-    }
+    constructor() : this("", listOf("#b0e0e6", "#b9f2ff"))
 }
 

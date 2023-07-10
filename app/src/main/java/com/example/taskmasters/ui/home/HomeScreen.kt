@@ -42,13 +42,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.taskmasters.data.GradientWrapper.Orientation.*
 import com.example.taskmasters.data.TableItem
 import com.example.taskmasters.screens.BottomBar
 import com.example.taskmasters.screens.BottomNavScreen
 import com.example.taskmasters.screens.Space
 import com.example.taskmasters.screens.TopBar
-import kotlin.random.Random
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -128,8 +126,6 @@ fun TableCard(
                 }
             }
 
-
-
             items(tables) { tableItem ->
                 Space(height = 10)
                 Box(
@@ -138,7 +134,7 @@ fun TableCard(
                         .fillMaxWidth()
                         .height(100.dp)
                         .background(
-                            brush = generateRandomPairGradient()
+                            brush = Brush.linearGradient(tableItem?.colors!!.checkColor())
                         )
                 )
             }
@@ -146,24 +142,9 @@ fun TableCard(
     }
 }
 
-fun generateRandomPairGradient(): Brush {
-    val color1 = generateSoftColor()
-    val color2 = generateSoftColor()
-    val color3 = generateSoftColor()
-    return Brush.linearGradient(
-        colors = listOf(color1, color2, color3)
-    )
+private fun List<String>.checkColor(): List<Color> {
+    return this.map { Color(android.graphics.Color.parseColor(it)) }
 }
-
-fun generateSoftColor(): Color {
-    val r = Random.nextInt(50,200)
-    val g = Random.nextInt(50,200)
-    val b = Random.nextInt(50,200)
-    val a = Random.nextInt(1000)
-
-    return Color(r,g,b,a)
-}
-
 
 private fun calculateCardHeight(tableCount: Int): Dp {
     val tableHeight = 100.dp
