@@ -4,6 +4,7 @@ package com.example.taskmasters.ui.home
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -76,7 +77,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = viewMode
         ) {
             Spacer(Modifier.height(115.dp))
 
-            TableCard(cardHeight.value, "Рабочие столы", tables, viewModel)
+            TableCard(cardHeight.value, "Рабочие столы", tables.sortedByDescending { it?.tableId }, viewModel, navController)
 
             Spacer(Modifier.height(100.dp))
         }
@@ -89,7 +90,8 @@ fun TableCard(
     height: Dp,
     title: String,
     tables: List<TableItem?>,
-    viewModel: HomeViewModel
+    viewModel: HomeViewModel,
+    navController: NavController
 ) {
     Row(modifier = Modifier.fillMaxWidth()) {
         Text(text = title, fontSize = 26.sp, modifier = Modifier.padding(start = 15.dp))
@@ -141,15 +143,18 @@ fun TableCard(
                         .fillMaxWidth()
                         .height(100.dp)
                         .background(
-                            brush = Brush.linearGradient(tableItem?.colors!!.checkColor())
+                            brush = Brush.linearGradient(tableItem?.colors!!.checkColor()),
+                            alpha = 0.7f
                         )
+                        .clickable { navController.navigate("${BottomNavScreen.Table.route}/${tableItem.tableId}") }
+
                 )
             }
         }
     }
 }
 
-private fun List<String>.checkColor(): List<Color> {
+fun List<String>.checkColor(): List<Color> {
     return this.map { Color(android.graphics.Color.parseColor(it)) }
 }
 

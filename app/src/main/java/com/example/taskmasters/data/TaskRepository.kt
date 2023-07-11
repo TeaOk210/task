@@ -8,4 +8,5 @@ interface TaskRepository {
     fun addTable(tableItem: TableItem)
     fun getTables(user: FirebaseUser): Flow<List<TableItem>>
     fun deleteAllTables(user: FirebaseUser)
+    fun getTable(user: FirebaseUser, tableId: Int): Flow<TableItem>
 }

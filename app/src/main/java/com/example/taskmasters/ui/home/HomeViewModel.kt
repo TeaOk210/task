@@ -33,7 +33,7 @@ class HomeViewModel(
 
     fun addTable(color: List<String> = generateSmoothGradient()) {
         viewModelScope.launch {
-            taskRepository.addTable(TableItem(user.uid, color))
+            taskRepository.addTable(TableItem(user.uid, color, _tables.value.size +1))
         }
     }
 
@@ -55,7 +55,6 @@ class HomeViewModel(
 
         return colors
     }
-
 
     private fun generateSoftColor(): Color {
         val r = Random.nextInt(0, 256)

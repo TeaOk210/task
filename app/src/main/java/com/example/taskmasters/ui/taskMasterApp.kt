@@ -13,6 +13,7 @@ import com.example.taskmasters.ui.auth.SignInScreen
 import com.example.taskmasters.ui.calendar.CalendarScreen
 import com.example.taskmasters.ui.home.HomeScreen
 import com.example.taskmasters.ui.settings.SettingsScreen
+import com.example.taskmasters.ui.table.TableScreen
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -44,6 +45,11 @@ fun TaskMasterApp(
         }
         composable(BottomNavScreen.Settings.route) {
             SettingsScreen(navController)
+        }
+        composable("${BottomNavScreen.Table.route}/{tableId}") { backStackEntry ->
+            val args = requireNotNull(backStackEntry.arguments)
+            val tableId = args.getString("tableId")?.toInt()
+            TableScreen(navController, tableId!!)
         }
     }
 }

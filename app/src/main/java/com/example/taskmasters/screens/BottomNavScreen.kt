@@ -1,8 +1,5 @@
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package com.example.taskmasters.screens
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -35,8 +32,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 sealed class BottomNavScreen(
     val route: String,
     val title: String,
-    val icon: ImageVector,
-    val page: Int
+    val icon: ImageVector?,
+    val page: Int?
 ) {
     object Home : BottomNavScreen(
         route = "home",
@@ -57,6 +54,13 @@ sealed class BottomNavScreen(
         title = "Настройки",
         icon = Icons.Default.Settings,
         page = 2
+    )
+
+    object Table: BottomNavScreen(
+        "table",
+        "Table Screen",
+        icon = null,
+        page = null
     )
 }
 
@@ -80,7 +84,7 @@ fun BottomBar(navController: NavController) {
 
             items.forEach { screen ->
                 BottomNavigationItem(
-                    icon = { Icon(screen.icon, "bottomBarIcon") },
+                    icon = { Icon(screen.icon!!, "bottomBarIcon") },
                     onClick = {
                         navController.navigate(screen.route) {
                             popUpTo(navController.graph.findStartDestination().id) {
@@ -129,6 +133,21 @@ fun TopBar(screen: BottomNavScreen) {
         ) {
             Text(text = screen.title, fontSize = 18.sp, modifier = Modifier.padding(start = 10.dp))
 
+        }
+    }
+}
+
+@Composable
+fun TopBar(title: String) {
+    Surface(
+        elevation = 10.dp,
+        color = Color.White,
+        shape = RoundedCornerShape(bottomEnd = 15.dp, bottomStart = 15.dp)
+    ) {
+        TopAppBar(
+            backgroundColor = Color.White,
+        ) {
+            Text(text = title, fontSize = 18.sp, modifier = Modifier.padding(start = 10.dp))
         }
     }
 }

@@ -54,12 +54,30 @@ class TaskRepositoryImpl(private val database: FirebaseFirestore = Firebase.fire
             // Handle failure
         }
     }
+
+    override fun getTable(user: FirebaseUser, tableId: Int): Flow<TableItem> {
+        return callbackFlow {
+            val tableRef = database.collection("tables")
+                .whereEqualTo("userId", user.uid)
+                .whereEqualTo("tableId", tableId)
+                .limit(1)
+
+            tableRef.get().addOnSuccessListener { querySnapshot ->
+                val table = querySnapshot.documents.firstOrNull()?.toObject(TableItem::class.java)
+                table?.let { trySend(it) }
+            }.addOnFailureListener { exception ->
+                close(exception)
+            }
+
+            awaitClose {}
+        }
+    }
 }
 
 data class TableItem(
     val userId: String,
-    val colors: List<String>
+    val colors: List<String>,
+    val tableId: Int
 ) {
-    constructor() : this("", listOf("#b0e0e6", "#b9f2ff"))
+    constructor() : this("", listOf("#b0e0e6", "#b9f2ff"), 1)
 }
-
